@@ -5,10 +5,7 @@ const DOMAIN = "qirong77.com";
 /** 与仓库目录名一致，便于用 IP 访问时命中本 server 块 */
 const SERVER_IP = "155.254.127.215";
 const PWD = "/root/machine";
-const NGINX_CONF_FILE = resolve(PWD, "conf", `${DOMAIN}.conf`);
-if (!existsSync(resolve(PWD, "conf"))) {
-    mkdirSync(resolve(PWD, "conf"));
-}
+const NGINX_CONF_FILE = resolve('/etc/nginx/conf.d', `${DOMAIN}.conf`);
 const INDEX_FILE = resolve(PWD, "index.html");
 const WEB_ROOT = dirname(INDEX_FILE);
 const USAGE = `用法:
