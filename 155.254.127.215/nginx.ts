@@ -1,13 +1,13 @@
-import fs, { existsSync, mkdirSync } from "fs";
+import fs from "fs";
 import { execSync } from "child_process";
-import { dirname, resolve } from "path";
+import { resolve } from "path";
 const DOMAIN = "qirong77.com";
 /** 与仓库目录名一致，便于用 IP 访问时命中本 server 块 */
 const SERVER_IP = "155.254.127.215";
 const PWD = "/root/machine";
 const NGINX_CONF_FILE = resolve('/etc/nginx/conf.d', `${DOMAIN}.conf`);
-const INDEX_FILE = resolve(PWD, "index.html");
-const WEB_ROOT = dirname(INDEX_FILE);
+/** Node 应用监听端口，与 index.mjs 一致 */
+const APP_PORT = 3000;
 const USAGE = `用法:
   bun run 155.254.127.215/nginx.ts --nginx-conf     写入 ${DOMAIN}.conf
   bun run 155.254.127.215/nginx.ts --nginx-restart  nginx -t 并重启 nginx
@@ -23,25 +23,26 @@ function requirePwd(): void {
 
 function buildNginxConf(): string {
     return [
-        "# 主站点配置",
+        "# 主站点：/ 与 /api 由本机 Node（index.mjs）处理",
         "server {",
         "    listen 443 ssl;",
         "    listen [::]:443 ssl;",
         "    http2 on;",
-        `    server_name ${DOMAIN} ${SERVER_IP};`,
-        "",
-        "    # 静态文件根目录（与 index.html 所在目录一致）",
-        `    root ${WEB_ROOT};`,
-        "    index index.html;",
+        `    server_name ${DOMAIN} www.${DOMAIN} ${SERVER_IP};`,
         "",
         "    # SSL 配置",
         `    ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;`,
         `    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;`,
         "    include /etc/letsencrypt/options-ssl-nginx.conf;",
         "    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;",
-        "    # 默认处理：交给静态文件目录",
+        "",
         "    location / {",
-        "        try_files $uri $uri/ =404;",
+        `        proxy_pass http://127.0.0.1:${APP_PORT};`,
+        "        proxy_http_version 1.1;",
+        "        proxy_set_header Host $host;",
+        "        proxy_set_header X-Real-IP $remote_addr;",
+        "        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
+        "        proxy_set_header X-Forwarded-Proto $scheme;",
         "    }",
         "}",
     ].join("\n");
