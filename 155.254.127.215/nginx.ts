@@ -1,10 +1,12 @@
-import fs from "fs";
+import fs, { existsSync, mkdirSync } from "fs";
 import { execSync } from "child_process";
 import { resolve } from "path";
-
 const DOMAIN = "qirong77.com";
 const PWD = "/root/machine";
 const NGINX_CONF_FILE = resolve(PWD, "conf", `${DOMAIN}.conf`);
+if (!existsSync(resolve(PWD, "conf"))) {
+    mkdirSync(resolve(PWD, "conf"));
+}
 const INDEX_FILE = resolve(PWD, "index.html");
 const USAGE = `用法:
   bun run 155.254.127.215/nginx.ts --nginx-conf     写入 ${DOMAIN}.conf
