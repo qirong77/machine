@@ -4,8 +4,8 @@ import { resolve } from "path";
 
 const DOMAIN = "qirong77.com";
 const PWD = "/root/machine";
-const NGINX_CONF = resolve(PWD, `${DOMAIN}.conf`);
-
+const NGINX_CONF_FILE = resolve(PWD, `${DOMAIN}.conf`);
+const INDEX_FILE = resolve(PWD, "index.html");
 const USAGE = `用法:
   bun run 155.254.127.215/nginx.ts --nginx-conf     写入 ${DOMAIN}.conf
   bun run 155.254.127.215/nginx.ts --nginx-restart  nginx -t 并重启 nginx
@@ -30,7 +30,7 @@ function buildNginxConf(): string {
         "",
         "    # 静态文件根目录",
         `    root /var/www/${DOMAIN};`,
-        "    index index.html;",
+        `    index ${INDEX_FILE};`,
         "",
         "    # SSL 配置",
         `    ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;`,
@@ -46,8 +46,8 @@ function buildNginxConf(): string {
 }
 
 function createNginxConf(): void {
-    fs.writeFileSync(NGINX_CONF, buildNginxConf(), "utf8");
-    console.log(`已写入 ${NGINX_CONF}`);
+    fs.writeFileSync(NGINX_CONF_FILE, buildNginxConf(), "utf8");
+    console.log(`已写入 ${NGINX_CONF_FILE}`);
 }
 
 function nginxRestart(): void {
