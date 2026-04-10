@@ -1,5 +1,7 @@
 # 是否配置 letsencryp，如果没有则配置
 # 更新 nginx 配置
+DOMAIN="qirong77.com"
+NGINX_CONF="/etc/nginx/conf.d/${DOMAIN}.conf"
 echo "
 # 3. 主站点配置
 server {
@@ -42,4 +44,4 @@ server {
         try_files $uri $uri/ =404;
     }
 }
-" > /etc/nginx/conf.d/qirong77.com.conf
+" > ${NGINX_CONF}
