@@ -1,13 +1,16 @@
 import fs, { existsSync, mkdirSync } from "fs";
 import { execSync } from "child_process";
-import { resolve } from "path";
+import { dirname, resolve } from "path";
 const DOMAIN = "qirong77.com";
+/** 与仓库目录名一致，便于用 IP 访问时命中本 server 块 */
+const SERVER_IP = "155.254.127.215";
 const PWD = "/root/machine";
 const NGINX_CONF_FILE = resolve(PWD, "conf", `${DOMAIN}.conf`);
 if (!existsSync(resolve(PWD, "conf"))) {
     mkdirSync(resolve(PWD, "conf"));
 }
 const INDEX_FILE = resolve(PWD, "index.html");
+const WEB_ROOT = dirname(INDEX_FILE);
 const USAGE = `用法:
   bun run 155.254.127.215/nginx.ts --nginx-conf     写入 ${DOMAIN}.conf
   bun run 155.254.127.215/nginx.ts --nginx-restart  nginx -t 并重启 nginx
@@ -28,11 +31,11 @@ function buildNginxConf(): string {
         "    listen 443 ssl;",
         "    listen [::]:443 ssl;",
         "    http2 on;",
-        `    server_name ${DOMAIN};`,
+        `    server_name ${DOMAIN} ${SERVER_IP};`,
         "",
-        "    # 静态文件根目录",
-        `    root /var/www/${DOMAIN};`,
-        `    index ${INDEX_FILE};`,
+        "    # 静态文件根目录（与 index.html 所在目录一致）",
+        `    root ${WEB_ROOT};`,
+        "    index index.html;",
         "",
         "    # SSL 配置",
         `    ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;`,
