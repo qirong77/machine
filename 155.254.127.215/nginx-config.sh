@@ -18,27 +18,6 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/qirong77.com/privkey.pem;
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
-
-    # --- 仅转发 API 请求到 Node.js ---
-    location /api/ {
-        # 将请求转发到本地 Node.js 端口
-        proxy_pass http://127.0.0.1:3000; 
-        
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host \$host;
-        proxy_cache_bypass \$http_upgrade;
-
-        # 传递客户端真实 IP
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-
-        # 可选：如果 Node.js 内部代码没有处理 /api 前缀，可以开启下面的 rewrite
-        # rewrite ^/api/(.*)$ /\$1 break;
-    }
-
     # 默认处理：交给静态文件目录
     location / {
         try_files \$uri \$uri/ =404;
